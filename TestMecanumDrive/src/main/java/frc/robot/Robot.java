@@ -12,6 +12,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.SendableBase;
+import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.drive.RobotDriveBase;
+import edu.wpi.first.wpilibj.drive.MecanumDrive;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -26,6 +32,29 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+//Talons for dirving
+  public TalonSRX motorDriveRightFront;  //RF x + y + r
+  public TalonSRX motorDiveRightRear; //RR -x + y + -r
+  public TalonSRX motorDriveLeftFront; //LF -x + y + r
+  public TalonSRX motorDriveLeftRear; //LR x + y + -r
+
+  public MecanumDrive mechRobo;
+  public SpeedController rightFront;
+  public SpeedController rightRear;
+  public SpeedController leftFront;
+  public SpeedController leftRear;
+  
+  private Joystick controllerDriving;
+
+  int conDriverLeftStickAxis = 1;
+  int conDiverRightStickAxis = 5;
+
+  double[] leftSpeedBuffer = new double[7];
+  double[] rightSpeedBuffer = new double[7];
+  int counterLeftSpeed = 0;
+  int counterRightSpeed = 0;
+
+  
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -45,6 +74,10 @@ public class Robot extends TimedRobot {
    * <p>This runs after the mode specific periodic functions, but before
    * LiveWindow and SmartDashboard integrated updating.
    */
+
+   public void robotInit1() {
+     mechRobo.mecanumDrive_Cartesian(m_driveStick.getX(), m_driveStick.getY(), m_driveStick.getZ());
+   }
   @Override
   public void robotPeriodic() {
   }
