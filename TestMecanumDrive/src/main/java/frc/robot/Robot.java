@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
@@ -34,7 +35,7 @@ public class Robot extends TimedRobot {
 
 //Talons for dirving
   public TalonSRX motorDriveRightFront;  //RF x + y + r
-  public TalonSRX motorDiveRightRear; //RR -x + y + -r
+  public TalonSRX motorDriveRightRear; //RR -x + y + -r
   public TalonSRX motorDriveLeftFront; //LF -x + y + r
   public TalonSRX motorDriveLeftRear; //LR x + y + -r
 
@@ -43,7 +44,7 @@ public class Robot extends TimedRobot {
   public SpeedController rightRear;
   public SpeedController leftFront;
   public SpeedController leftRear;
-  
+
   private Joystick controllerDriving;
 
   int conDriverLeftStickAxis = 1;
@@ -53,7 +54,6 @@ public class Robot extends TimedRobot {
   double[] rightSpeedBuffer = new double[7];
   int counterLeftSpeed = 0;
   int counterRightSpeed = 0;
-
   
   /**
    * This function is run when the robot is first started up and should be
@@ -61,9 +61,37 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    /*
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    */
+    
+    motorDriveRightRear = new TalonSRX(0);
+    motorDriveRightRear.set(ControlMode.PercentOutput, 0);
+    motorDriveRightRear.configFactoryDefault();
+    motorDriveRightRear.setNeutralMode(NeutralMode.Brake);
+    motorDriveRightRear.setInverted(false); //The four of these make it so that we dont have to re-wire, just a software fix
+    
+    motorDriveLeftFront = new TalonSRX(5);
+    motorDriveLeftFront.set(ControlMode.PercentOutput, 0);
+    motorDriveLeftFront.configFactoryDefault();
+    motorDriveLeftFront.setNeutralMode(NeutralMode.Brake);
+    motorDriveLeftFront.setInverted(false);
+
+    motorDriveLeftRear = new TalonSRX(1);
+    motorDriveLeftRear.set(ControlMode.PercentOutput, 0);
+    motorDriveLeftRear.configFactoryDefault();
+    motorDriveLeftRear.setNeutralMode(NeutralMode.Brake);
+    motorDriveLeftRear.setInverted(false);
+
+    motorDriveRightFront = new TalonSRX(2);
+    motorDriveRightFront.set(ControlMode.PercentOutput, 0);
+    motorDriveRightFront.configFactoryDefault();
+    motorDriveRightFront.setNeutralMode(NeutralMode.Brake);
+    motorDriveRightFront.setInverted(false);
+
+    controllerDriving = new Joystick(0);
   }
 
   /**
@@ -75,9 +103,7 @@ public class Robot extends TimedRobot {
    * LiveWindow and SmartDashboard integrated updating.
    */
 
-   public void robotInit1() {
-     mechRobo.mecanumDrive_Cartesian(m_driveStick.getX(), m_driveStick.getY(), m_driveStick.getZ());
-   }
+
   @Override
   public void robotPeriodic() {
   }
@@ -121,7 +147,34 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    double[] motorSpeeds = OperatorControl(controllerDriving.getRawAxis(0), controllerDriving.getRawAxis(1), controllerDriving.getRawAxis(2));
+
+    motorDriveLeftFront.set(ControlMode.PercentOutput, motorSpeeds[0]);
+    motorDriveRightFront.set(ControlMode.PercentOutput, motorSpeeds[1]);
+    motorDriveLeftRear.set(ControlMode.PercentOutput, motorSpeeds[2]);
+    motorDriveRightRear.set(ControlMode.PercentOutput, motorSpeeds[3]);
+
   }
+
+
+  double[] OperatorControl( double x, double y, double z) {
+    double r = Math.hypot(x, y);
+    double robotAngle = Math.atan2(y, x) - Math.PI / 4;
+    double rightX = x;
+    final double v1 = r * Math.cos(robotAngle) + rightX;
+    final double v2 = r * Math.sin(robotAngle) - rightX;
+    final double v3 = r * Math.sin(robotAngle) + rightX;
+    final double v4 = r * Math.cos(robotAngle) - rightX;
+
+    /*
+    leftFront.setPower(v1);
+    rightFront.setPower(v2);
+    leftRear.setPower(v3);
+    rightRear.setPower(v4);
+    */
+    return new double[] {v1, v2, v3, v4};
+  }
+
 
   /**
    * This function is called periodically during test mode.
