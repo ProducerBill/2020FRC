@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 
+import frc.robot.HolonomicDrive;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -39,11 +41,7 @@ public class Robot extends TimedRobot {
   public TalonSRX motorDriveLeftFront; //LF -x + y + r
   public TalonSRX motorDriveLeftRear; //LR x + y + -r
 
-  public MecanumDrive mechRobo;
-  public SpeedController rightFront;
-  public SpeedController rightRear;
-  public SpeedController leftFront;
-  public SpeedController leftRear;
+  public HolonomicDrive driveSystem;
 
   private Joystick controllerDriving;
 
@@ -54,6 +52,8 @@ public class Robot extends TimedRobot {
   double[] rightSpeedBuffer = new double[7];
   int counterLeftSpeed = 0;
   int counterRightSpeed = 0;
+
+
   
   /**
    * This function is run when the robot is first started up and should be
@@ -71,27 +71,29 @@ public class Robot extends TimedRobot {
     motorDriveRightRear.set(ControlMode.PercentOutput, 0);
     motorDriveRightRear.configFactoryDefault();
     motorDriveRightRear.setNeutralMode(NeutralMode.Brake);
-    motorDriveRightRear.setInverted(false); //The four of these make it so that we dont have to re-wire, just a software fix
+    motorDriveRightRear.setInverted(true); //The four of these make it so that we dont have to re-wire, just a software fix
     
     motorDriveLeftFront = new TalonSRX(5);
     motorDriveLeftFront.set(ControlMode.PercentOutput, 0);
     motorDriveLeftFront.configFactoryDefault();
     motorDriveLeftFront.setNeutralMode(NeutralMode.Brake);
-    motorDriveLeftFront.setInverted(false);
+    motorDriveLeftFront.setInverted(true);
 
     motorDriveLeftRear = new TalonSRX(1);
     motorDriveLeftRear.set(ControlMode.PercentOutput, 0);
     motorDriveLeftRear.configFactoryDefault();
     motorDriveLeftRear.setNeutralMode(NeutralMode.Brake);
-    motorDriveLeftRear.setInverted(false);
+    motorDriveLeftRear.setInverted(true);
 
     motorDriveRightFront = new TalonSRX(2);
     motorDriveRightFront.set(ControlMode.PercentOutput, 0);
     motorDriveRightFront.configFactoryDefault();
     motorDriveRightFront.setNeutralMode(NeutralMode.Brake);
-    motorDriveRightFront.setInverted(false);
+    motorDriveRightFront.setInverted(true);
 
     controllerDriving = new Joystick(0);
+
+    driveSystem = new HolonomicDrive();
   }
 
   /**
@@ -147,12 +149,31 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    double[] motorSpeeds = OperatorControl(controllerDriving.getRawAxis(0), controllerDriving.getRawAxis(1), controllerDriving.getRawAxis(2));
 
-    motorDriveLeftFront.set(ControlMode.PercentOutput, motorSpeeds[0]);
-    motorDriveRightFront.set(ControlMode.PercentOutput, motorSpeeds[1]);
-    motorDriveLeftRear.set(ControlMode.PercentOutput, motorSpeeds[2]);
-    motorDriveRightRear.set(ControlMode.PercentOutput, motorSpeeds[3]);
+    //Dead bands.
+    double x = controllerDriving.getRawAxis(0);
+    double y = controllerDriving.getRawAxis(1);
+    double z = controllerDriving.getRawAxis(4);
+
+    if(x < 0.2 && x > -0.2){ x = 0.0;}
+    if(y < 0.2 && y > -0.2){y = 0.0;}
+    if(z < 0.2 && z > -0.2){ z = 0.0;}
+
+    //System.out.println(x + ", " + y + ", " + z);
+
+    //double[] motorSpeeds = OperatorControl(controllerDriving.getRawAxis(4) / 2,
+    //                                       controllerDriving.getRawAxis(5) / 2,
+    //                                        0);//controllerDriving.getRawAxis(0) / 2);
+
+
+    //double[] motorSpeeds = holonomicCalc(x / 2, y / 2, z/2);
+
+    driveSystem.inputControl(x, y, z);
+
+    motorDriveLeftFront.set(ControlMode.PercentOutput, driveSystem.motorFrontLeft);
+    motorDriveRightFront.set(ControlMode.PercentOutput, driveSystem.motorFrontRight);
+    motorDriveLeftRear.set(ControlMode.PercentOutput, driveSystem.motorRearLeft);
+    motorDriveRightRear.set(ControlMode.PercentOutput, driveSystem.motorRearRight);
 
   }
 
@@ -175,6 +196,33 @@ public class Robot extends TimedRobot {
     return new double[] {v1, v2, v3, v4};
   }
 
+double[] holonomicCalc(double x, double y, double z){
+  double frontLeft = -y - x - z;//(-1 * y) + (-1 * x) + (-1 *z);
+  double frontRight = y - x - z;//y + (-1 * x) + (-1 * z);
+  double rearLeft = y + x - z;  //y + x + (-1 * z);
+  double rearRight = -y + x - z; //(-1 * y) + x + (-1 * z);
+
+  System.out.println(frontLeft + ", " + frontRight + ", " + rearLeft + ", " + rearRight);
+
+  return new double[] {frontLeft, frontRight, rearLeft, rearRight };
+
+}
+
+double[] mecanDrive(){
+  return new double[]{};
+}
+
+double rangeClip(double input){
+  if(input < -1){
+    return -1;
+  }
+
+  if(input > 1){
+    return 1;
+  }
+
+  return 0;
+}
 
   /**
    * This function is called periodically during test mode.
