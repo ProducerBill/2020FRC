@@ -77,13 +77,13 @@ public class Robot extends TimedRobot {
     motorDriveLeftFront.set(ControlMode.PercentOutput, 0);
     motorDriveLeftFront.configFactoryDefault();
     motorDriveLeftFront.setNeutralMode(NeutralMode.Brake);
-    motorDriveLeftFront.setInverted(true);
+    motorDriveLeftFront.setInverted(false);
 
     motorDriveLeftRear = new TalonSRX(1);
     motorDriveLeftRear.set(ControlMode.PercentOutput, 0);
     motorDriveLeftRear.configFactoryDefault();
     motorDriveLeftRear.setNeutralMode(NeutralMode.Brake);
-    motorDriveLeftRear.setInverted(true);
+    motorDriveLeftRear.setInverted(false);
 
     motorDriveRightFront = new TalonSRX(2);
     motorDriveRightFront.set(ControlMode.PercentOutput, 0);
@@ -152,7 +152,7 @@ public class Robot extends TimedRobot {
 
     //Dead bands.
     double x = controllerDriving.getRawAxis(0);
-    double y = controllerDriving.getRawAxis(1);
+    double y = controllerDriving.getRawAxis(1) * -1;
     double z = controllerDriving.getRawAxis(4);
 
     if(x < 0.2 && x > -0.2){ x = 0.0;}
@@ -168,13 +168,14 @@ public class Robot extends TimedRobot {
 
     //double[] motorSpeeds = holonomicCalc(x / 2, y / 2, z/2);
 
-    driveSystem.inputControl(x, y, z);
-
+    driveSystem.inputControl(-.2, .01, z);
+    
+    
     motorDriveLeftFront.set(ControlMode.PercentOutput, driveSystem.motorFrontLeft);
     motorDriveRightFront.set(ControlMode.PercentOutput, driveSystem.motorFrontRight);
     motorDriveLeftRear.set(ControlMode.PercentOutput, driveSystem.motorRearLeft);
     motorDriveRightRear.set(ControlMode.PercentOutput, driveSystem.motorRearRight);
-
+    
   }
 
 
