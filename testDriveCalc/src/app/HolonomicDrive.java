@@ -1,4 +1,4 @@
-package frc.robot;
+package app;
 
 public class HolonomicDrive{
 
@@ -92,7 +92,7 @@ public class HolonomicDrive{
         motorRearLeft = (hypotenuse * Math.cos(Math.toRadians(theta45)) + rotation);
         motorRearRight = (hypotenuse * Math.sin(Math.toRadians(theta45)) - rotation);
         //System.out.println(theta45);
-        System.out.println("FL=" + motorFrontLeft + " FR=" + motorFrontRight + " RL=" + motorRearLeft + " RR=" + motorRearRight);
+        //System.out.println("FL=" + motorFrontLeft + " FR=" + motorFrontRight + " RL=" + motorRearLeft + " RR=" + motorRearRight);
     }
 
 }

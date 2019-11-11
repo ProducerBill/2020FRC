@@ -70,25 +70,25 @@ public class Robot extends TimedRobot {
     motorDriveRightRear = new TalonSRX(0);
     motorDriveRightRear.set(ControlMode.PercentOutput, 0);
     motorDriveRightRear.configFactoryDefault();
-    motorDriveRightRear.setNeutralMode(NeutralMode.Brake);
+    motorDriveRightRear.setNeutralMode(NeutralMode.Coast);
     motorDriveRightRear.setInverted(true); //The four of these make it so that we dont have to re-wire, just a software fix
     
     motorDriveLeftFront = new TalonSRX(5);
     motorDriveLeftFront.set(ControlMode.PercentOutput, 0);
     motorDriveLeftFront.configFactoryDefault();
-    motorDriveLeftFront.setNeutralMode(NeutralMode.Brake);
+    motorDriveLeftFront.setNeutralMode(NeutralMode.Coast);
     motorDriveLeftFront.setInverted(false);
 
     motorDriveLeftRear = new TalonSRX(1);
     motorDriveLeftRear.set(ControlMode.PercentOutput, 0);
     motorDriveLeftRear.configFactoryDefault();
-    motorDriveLeftRear.setNeutralMode(NeutralMode.Brake);
+    motorDriveLeftRear.setNeutralMode(NeutralMode.Coast);
     motorDriveLeftRear.setInverted(false);
 
     motorDriveRightFront = new TalonSRX(2);
     motorDriveRightFront.set(ControlMode.PercentOutput, 0);
     motorDriveRightFront.configFactoryDefault();
-    motorDriveRightFront.setNeutralMode(NeutralMode.Brake);
+    motorDriveRightFront.setNeutralMode(NeutralMode.Coast);
     motorDriveRightFront.setInverted(true);
 
     controllerDriving = new Joystick(0);
@@ -168,7 +168,7 @@ public class Robot extends TimedRobot {
 
     //double[] motorSpeeds = holonomicCalc(x / 2, y / 2, z/2);
 
-    driveSystem.inputControl(-.2, .01, z);
+    driveSystem.inputControl(x, y, z);
     
     
     motorDriveLeftFront.set(ControlMode.PercentOutput, driveSystem.motorFrontLeft);
