@@ -26,11 +26,16 @@ cv2.createTrackbar("bw2","Parameters",255,255,empty)
 cv2.namedWindow("HSV")
 cv2.resizeWindow("HSV", 640, 480)
 cv2.createTrackbar("LHSV1", "HSV", 0, 179, empty)
-cv2.createTrackbar("LHSV2", "HSV", 41, 255, empty)
-cv2.createTrackbar("LHSV3", "HSV", 171, 255, empty)
-cv2.createTrackbar("HHSV1", "HSV", 8, 179, empty)
-cv2.createTrackbar("HHSV2", "HSV", 162, 255, empty)
+cv2.createTrackbar("LHSV2", "HSV", 0, 255, empty)
+cv2.createTrackbar("LHSV3", "HSV", 0, 255, empty)
+cv2.createTrackbar("HHSV1", "HSV", 179, 179, empty)
+cv2.createTrackbar("HHSV2", "HSV", 255, 255, empty)
 cv2.createTrackbar("HHSV3", "HSV", 255, 255, empty)
+
+cv2.namedWindow("Smash")
+cv2.resizeWindow("Smash", 640, 200)
+cv2.createTrackbar("Blur", "Smash",1,20, empty)
+cv2.createTrackbar("Sharp", "Smash",1,20,empty)
 
 def stackImages(scale,imgArray):
     rows = len(imgArray)
@@ -95,11 +100,28 @@ def filterColor(img, MaskColors): # lowerColor, highColor):
     #Returning the results.
     return result
 
+def blurImage(img):
+    imgBlur = cv2.GaussianBlur(img, (7, 7), 2)
+    return imgBlur
+
+def sharpenImage(img):
+    kernel = np.array([[0, 0, 0],
+                       [0, 2, 0],
+                       [0, 0, 0]])
+
+    # Sharpen image
+    image_sharp = cv2.filter2D(img, -1, kernel)
+    return image_sharp
 
 
 def findEdges(img, threshold1, threshold2):
-    imgBlur = cv2.GaussianBlur(img, (7, 7), 2)
-    imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
+
+    imgGray = None
+
+    if len(img.shape) < 3:
+        imgGray = img
+    else:
+        imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
 
     return imgCanny
@@ -158,7 +180,7 @@ def findTargets(img):
     lowerImg = img[(int)(height / 2): height, 0: width]
     lowerImgLoc = [(int)(height/2), 0]
 
-    cv2.imshow("Lower Half", lowerImg)
+    #cv2.imshow("Lower Half", lowerImg)
 
     #Real ranges Blue
     lTLowerHSV = np.array(([63, 43, 59]))
@@ -175,18 +197,24 @@ def findTargets(img):
     filterImg = filterColor(lowerImg, maskColor)
 
     #For filter debug
-    cv2.imshow("First Filter", filterImg)
+    #cv2.imshow("First Filter", filterImg)
 
-    #Finding the edges.
-    #imgEdges = findEdges(filterImg, 157, 158) #For Blue
-    imgEdges = findEdges(filterImg, 165, 106)
-    cv2.imshow("Found Edges", imgEdges)
+
+
+    #Getting the blured image needed.
+    imgBlur = blurImage(filterImg)
+
+    # Finding the edges.
+    #imgEdges = findEdges(filterImg, 157, 158)  # For Blue
+    imgEdges = findEdges(imgBlur, 165, 106)    # For Red
+
+    #cv2.imshow("Found Edges", imgEdges)
 
     kernel = np.ones((5, 5))
     imgDil = cv2.dilate(imgEdges, kernel, iterations=1)
 
     #Debug for dilation
-    cv2.imshow("Dia", imgDil)
+    #cv2.imshow("Dia", imgDil)
 
     #Making a copy of the image.
     imgP2 = img.copy()
@@ -221,16 +249,20 @@ def findTargets(img):
             #if len(approx) >= 8:
             if x > 0 and y > 0:
                 upperImg = imgP2[0: y, x: x + w]
-                cv2.imshow("UpperArea", upperImg)
+                #cv2.imshow("UpperArea", upperImg)
 
                 #Start of second tier processing.
-                manualTune(upperImg)
+                #manualTune(upperImg)
 
-                #HTContours = findUpperTarget(upperImg)
-                #HTContours = matchContourToMaster(HTContours, ([0, x]))
-                #imgFP = drawContours(imgFP, HTContours)
+                HTContours = findUpperTarget(upperImg)
+                HTContours = matchContourToMaster(HTContours, ([0, x]))
+                imgFP = drawContours(imgFP, HTContours)
 
     cv2.imshow("Final", imgFP)
+
+    cv2.imshow("Lower", stackImages(1, ([lowerImg, filterImg],
+                                        [imgBlur, imgEdges],
+                                        [imgDil, imgDil])))
 
 
 def findUpperTarget(upperImg):
@@ -243,26 +275,45 @@ def findUpperTarget(upperImg):
     # fliter image for color.
     filterImg = filterColor(upperImg, maskColor2)
 
+    blurCount = cv2.getTrackbarPos("Blur", "Smash")
+    sharpCount = cv2.getTrackbarPos("Sharp", "Smash")
+
+    imgGray = cv2.cvtColor(filterImg, cv2.COLOR_BGR2GRAY)
+
+    imgSharp = imgGray.copy()
+
+    for y in range(sharpCount):
+        imgSharp = sharpenImage(imgSharp)
+
+    for x in range(blurCount):
+        imgBlur = blurImage(imgSharp)
+
+
+
     # Finding the edges. Red Values
     imgEdges = findEdges(
-        filterImg
+        imgBlur
         , 229 #cv2.getTrackbarPos("Threshold1", "Parameters")
         , 159 #cv2.getTrackbarPos("Threshold2", "Parameters")
     )
 
-    cv2.imshow("UpperEdge", imgEdges)
+    #cv2.imshow("UpperEdge", imgEdges)
 
     kernel = np.ones((5, 5))
     #imgErosion = cv2.erode(imgEdges, kernel, iterations=1)
     imgDil = cv2.dilate(imgEdges, kernel, iterations=1)
 
-    cv2.imshow("UpperDil", imgDil)
+    #cv2.imshow("UpperDil", imgDil)
 
     # Finding the contours
-    HTContours = getContours(imgDil, upperImg.copy(), 2000, 60000)
+    HTContours = getContours(imgDil, upperImg.copy(), 1500, 60000)
 
     imgFP = drawContours(upperImg, HTContours)
-    cv2.imshow("FinalHT", imgFP)
+    #cv2.imshow("FinalHT", imgFP)
+
+    cv2.imshow("Upper", stackImages(1, ([upperImg, filterImg, imgGray],
+                                        [imgSharp, imgBlur, imgFP],
+                                        [imgEdges, imgDil, imgFP])))
 
     return HTContours
 
@@ -280,12 +331,35 @@ def manualTune(img):
         ])]
     )
 
+    blurCount = cv2.getTrackbarPos("Blur", "Smash")
+    sharpCount = cv2.getTrackbarPos("Sharp", "Smash")
+
+    imgGray = cv2.cvtColor(colorFilter, cv2.COLOR_BGR2GRAY)
+
+
+    imgSharp = imgGray.copy()
+
+    for y in range(sharpCount):
+        imgSharp = sharpenImage(imgSharp)
+
+
+    for x in range(blurCount):
+        imgBlur = blurImage(imgSharp)
+
+    #cv2.imshow("BlurImage", imgBlur)
+
+
+
+    #cv2.imshow("SharpImage", imgSharp)
+
 
     imgCanny = findEdges(
-        colorFilter
+        imgBlur
         , cv2.getTrackbarPos("Threshold1", "Parameters")
         , cv2.getTrackbarPos("Threshold2", "Parameters")
     )
+
+
 
     kernel = np.ones((5, 5))
     imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
@@ -298,19 +372,23 @@ def manualTune(img):
     imgContour = drawContours(img, cntList)
 
 
-    cv2.imshow("Color Filter", colorFilter)
+    #cv2.imshow("Color Filter", colorFilter)
 
-    cv2.imshow("Canny", imgCanny)
-    cv2.imshow("Dil", imgDil)
-    cv2.imshow("contour", imgContour)
+    #cv2.imshow("Canny", imgCanny)
+    #cv2.imshow("Dil", imgDil)
+    #cv2.imshow("contour", imgContour)
 
-    imgStack = stackImages(0.7, ([img, colorFilter]))
+    imgStack = stackImages(1, ([img, colorFilter, imgGray],
+                               [imgBlur, imgSharp, imgCanny],
+                               [imgDil, img, imgContour]))
     cv2.imshow("Output", imgStack)
 
 
 
 while True:
     img = screemGrab()
+
+    img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
     #manualTune(img)
     findTargets(img)
