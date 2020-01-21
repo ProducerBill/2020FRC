@@ -105,9 +105,11 @@ def blurImage(img):
     return imgBlur
 
 def sharpenImage(img):
-    kernel = np.array([[0, 0, 0],
-                       [0, 2, 0],
-                       [0, 0, 0]])
+    kernel = np.array([[0, 0, 0, 0, 0],
+                       [0, -1, -1, -1, 0],
+                       [0, -1, 8, -1, 0],
+                       [0, -1, -1, -1, 0],
+                       [0, 0, 0, 0, 0]])
 
     # Sharpen image
     image_sharp = cv2.filter2D(img, -1, kernel)
@@ -191,6 +193,7 @@ def findTargets(img):
     maskColor = ([
         [np.array((([0, 50, 50]))), np.array(([8, 255, 255]))]
         ,[np.array((([170, 150, 130]))), np.array(([180, 255, 255]))]
+        ,[np.array((([63, 43, 59]))), np.array((([111, 102, 187])))]
     ])
 
     #fliter image for color.
@@ -248,7 +251,7 @@ def findTargets(img):
             x, y, w, h = cv2.boundingRect(approx)
             #if len(approx) >= 8:
             if x > 0 and y > 0:
-                upperImg = imgP2[0: y, x: x + w]
+                upperImg = imgP2[0: int(w * 1.3), x: x + w]
                 #cv2.imshow("UpperArea", upperImg)
 
                 #Start of second tier processing.
@@ -285,16 +288,18 @@ def findUpperTarget(upperImg):
     for y in range(sharpCount):
         imgSharp = sharpenImage(imgSharp)
 
-    for x in range(blurCount):
-        imgBlur = blurImage(imgSharp)
-
+    if blurCount > 0:
+        for x in range(blurCount):
+            imgBlur = blurImage(imgSharp)
+    else:
+        imgBlur = imgSharp
 
 
     # Finding the edges. Red Values
     imgEdges = findEdges(
         imgBlur
-        , 229 #cv2.getTrackbarPos("Threshold1", "Parameters")
-        , 159 #cv2.getTrackbarPos("Threshold2", "Parameters")
+        , cv2.getTrackbarPos("Threshold1", "Parameters")
+        , cv2.getTrackbarPos("Threshold2", "Parameters")
     )
 
     #cv2.imshow("UpperEdge", imgEdges)
@@ -309,11 +314,11 @@ def findUpperTarget(upperImg):
     HTContours = getContours(imgDil, upperImg.copy(), 1500, 60000)
 
     imgFP = drawContours(upperImg, HTContours)
-    #cv2.imshow("FinalHT", imgFP)
 
     cv2.imshow("Upper", stackImages(1, ([upperImg, filterImg, imgGray],
                                         [imgSharp, imgBlur, imgFP],
                                         [imgEdges, imgDil, imgFP])))
+
 
     return HTContours
 
