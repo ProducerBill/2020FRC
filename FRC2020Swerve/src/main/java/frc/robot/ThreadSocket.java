@@ -6,7 +6,10 @@ import java.net.Socket;
 public class ThreadSocket extends Thread {
     protected Socket socket;
 
+    public String curLine;
+
     public ThreadSocket(Socket clientSocket) {
+        this.curLine = "";
         this.socket = clientSocket;
     }
 
@@ -30,6 +33,7 @@ public class ThreadSocket extends Thread {
                     return;
                 } else {
                     out.writeBytes(line + "\n\r");
+                    curLine = line;
                     out.flush();
                 }
             } catch (IOException e) {

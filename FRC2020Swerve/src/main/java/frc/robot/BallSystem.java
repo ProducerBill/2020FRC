@@ -34,6 +34,7 @@ public class BallSystem implements Runnable {
     private TalonSRX mBallShootR;
 
     private int runState = 1;
+    private boolean enableSystem = false;
 
     private boolean fireBall = false; // Command to fire ball.
 
@@ -79,46 +80,47 @@ public class BallSystem implements Runnable {
         dateBallLoaderStart = new Date();
 
         while (this.runState == 1) {
+            if(enableSystem){
 
-            // Read the the switch state.
-            readSwitchState();
+                // Read the the switch state.
+                readSwitchState();
 
-            // Updating the time passed on timed items.
-            long timePassedBallLoader = new Date().getTime() - dateBallLoaderStart.getTime();
-            // System.out.println("Ball ms Passed: " + timePassedBallLoader);
+                // Updating the time passed on timed items.
+                long timePassedBallLoader = new Date().getTime() - dateBallLoaderStart.getTime();
+                // System.out.println("Ball ms Passed: " + timePassedBallLoader);
 
-            // If loader is true run the ball loader.
-            if (curBallLoaderState == true) {
-                System.out.println("Starting the ball loader.");
-                dateBallLoaderStart = new Date();
+                // If loader is true run the ball loader.
+                if (curBallLoaderState == true) {
+                    System.out.println("Starting the ball loader.");
+                    dateBallLoaderStart = new Date();
 
-                // Start ball loader.
-                setBallLoaderState(true);
+                    // Start ball loader.
+                    setBallLoaderState(true);
+                }
+
+                // If the loader is clear and the loader is running and time has elapsed stop
+                // ball loader.
+                if (curBallLoaderState == false && isBallLoaderRunning == true
+                        && timePassedBallLoader > runTimeBallLoader) {
+                    System.out.println("Stopping the ball loader.");
+                    setBallLoaderState(false);
+                }
+
+                // If conveyor is true and ready is false run belt until ready is true.
+                if (curBallLoaderState == true && curBallReadyState == false) {
+                    setBallConveyorState(true);
+                    
+                }
+
+                //Stop the ball if at the ready state.
+                if(curBallReadyState == true){
+                    setBallConveyorState(false);
+                }
+
+                if (fireBall) {
+                    controlFireBall();
+                }
             }
-
-            // If the loader is clear and the loader is running and time has elapsed stop
-            // ball loader.
-            if (curBallLoaderState == false && isBallLoaderRunning == true
-                    && timePassedBallLoader > runTimeBallLoader) {
-                System.out.println("Stopping the ball loader.");
-                setBallLoaderState(false);
-            }
-
-            // If conveyor is true and ready is false run belt until ready is true.
-            if (curBallLoaderState == true && curBallReadyState == false) {
-                setBallConveyorState(true);
-                
-            }
-
-            //Stop the ball if at the ready state.
-            if(curBallReadyState == true){
-                setBallConveyorState(false);
-            }
-
-            if (fireBall) {
-                controlBallSystem(true);
-            }
-
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
@@ -211,6 +213,10 @@ public class BallSystem implements Runnable {
 
     public void fireBall(){
         fireBall = true;
+    }
+
+    public void enable(boolean state){
+        enableSystem = state;
     }
     
 

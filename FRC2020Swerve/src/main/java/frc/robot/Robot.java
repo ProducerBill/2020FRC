@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
     // TODO Auto-generated method stub
     super.disabledInit();
 
-    //((BallSystem) bSystem).controlBallSystem(false);   //Shutting down ball system.
+    ((BallSystem) bSystem).enable(false);  //Shutting down ball system.
 
   }
 
@@ -95,6 +95,7 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+
   }
 
   /**
@@ -111,6 +112,14 @@ public class Robot extends TimedRobot {
         // Put default auto code here
         break;
     }
+
+    
+    String command = ((ServerTCP) nServer).getLatestLine();
+    if(command != ""){
+      System.out.println("Command:" + command);
+    }
+
+
   }
 
   /**
@@ -130,6 +139,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+
+    ((BallSystem) bSystem).enable(true);
 
     /*
     JoyDriveData testData = new JoyDriveData();
