@@ -18,7 +18,7 @@ public class Wheel {
     private RobotKnowns robotKnowns;
 
     private double curStearPos;
-    private double curDrivePos;
+    private double curDriveVol;
 
     public Wheel(int driveID, int stearID, String name){
         
@@ -51,17 +51,26 @@ public class Wheel {
 
     //Input the desire speed forward.
     public void setSpeed(double countSpeed){
+
+
+        curDriveVol = countSpeed;
+
         //MotorDrive.set(ControlMode.Velocity, countSpeed);
     }
 
-    public int getDriveSpeed(){
+    public int getDriveVelocity(){
         return MotorDrive.getSelectedSensorVelocity(0);
+    }
+
+    public void setDrivePower(double powerInput){
+        MotorDrive.set(ControlMode.PercentOutput, powerInput);
     }
 
     //Set the desire angle direction.
     public void setStearAngle(double desiredAngle){
         curStearPos = curStearPos + findClosest(desiredAngle);
-        System.out.println(this.Name + " RC: " + wheelRotations() + " Ang: " + String.format("%.3f", curStearPos));
+        System.out.println(this.Name + " RC: " + wheelRotations() + " Ang: " + String.format("%.3f", curStearPos) + 
+                    " DS: " + curDriveVol);
 
 
 

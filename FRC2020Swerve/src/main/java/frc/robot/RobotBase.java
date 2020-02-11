@@ -9,7 +9,6 @@ public class RobotBase {
 
     private double curAngle;    //Angle the base is pointed orintated to the field. 0 = stright forward.
     private List<Wheel> baseWheels;
-
     private RobotKnowns robotKnowns;
 
     public RobotBase(){
@@ -107,7 +106,6 @@ public class RobotBase {
             //Setting the results to each wheel.
             baseWheels.get(0).setSpeed(frontLeftSpeed);
             baseWheels.get(0).setStearAngle(frontLeftAngle);
-
             
             baseWheels.get(1).setSpeed(frontRightSpeed);
             baseWheels.get(1).setStearAngle(frontRightAngle);

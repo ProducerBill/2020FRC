@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.joyController;
 import frc.robot.JoyDriveData;
+import frc.robot.ServerTCP;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -29,6 +30,8 @@ public class Robot extends TimedRobot {
 
   private joyController jCDriver;   //Drivers controller
   private RobotBase rbase;    //Robot chassis.
+  private Runnable bSystem; //Ball shooter system.
+  private Runnable nServer;  //Com server
 
   /**
    * This function is run when the robot is first started up and should be
@@ -43,7 +46,24 @@ public class Robot extends TimedRobot {
     //Setting up the controllers.
     jCDriver = new joyController(0);  //Driver controller.
     rbase = new RobotBase();    //Robot chassis.
+    
+    bSystem = new BallSystem();  //Starting ball system.
+    ((BallSystem) bSystem).controlBallSystem(true); // Allow the system to run ball system.
+    Thread threadBSystem = new Thread(bSystem);
+    threadBSystem.start();
 
+    //Setting up the server.
+    nServer = new ServerTCP();
+    Thread threadNServer = new Thread(nServer);
+    threadNServer.start();
+
+  }
+
+  public void disabledInit() {
+    // TODO Auto-generated method stub
+    super.disabledInit();
+
+    //((BallSystem) bSystem).controlBallSystem(false);   //Shutting down ball system.
 
   }
 
@@ -110,5 +130,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+
+    /*
+    JoyDriveData testData = new JoyDriveData();
+    testData.driveAngle = 0;
+    testData.driveSpeed = 0;
+    testData.rotateSpeed = -1.0;
+    
+    rbase.driveBase(testData);
+    */
   }
 }
