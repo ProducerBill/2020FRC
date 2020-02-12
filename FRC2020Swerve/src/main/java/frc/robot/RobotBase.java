@@ -21,10 +21,10 @@ public class RobotBase {
 
     private void setupWheels(){
         
-        baseWheels.add(new Wheel(1, 2, "FL"));  //Front Left
-        baseWheels.add(new Wheel(3, 4, "FR"));  //Front Right
-        baseWheels.add(new Wheel(5, 6, "RL"));  //Rear Left
-        baseWheels.add(new Wheel(7, 8, "RR"));  //Rear Right
+        baseWheels.add(new Wheel(2, 1, "FL"));  //Front Left
+        baseWheels.add(new Wheel(4, 3, "FR"));  //Front Right
+        //baseWheels.add(new Wheel(5, 6, "RL"));  //Rear Left
+        //baseWheels.add(new Wheel(7, 8, "RR"));  //Rear Right
         
     }
 
@@ -110,12 +110,13 @@ public class RobotBase {
             baseWheels.get(1).setSpeed(frontRightSpeed);
             baseWheels.get(1).setStearAngle(frontRightAngle);
 
+            /*
             baseWheels.get(2).setSpeed(backLeftSpeed);
             baseWheels.get(2).setStearAngle(backLeftAngle);
 
             baseWheels.get(3).setSpeed(backRightSpeed);
             baseWheels.get(3).setStearAngle(backRightAngle);
-            
+            */
         
         }
 

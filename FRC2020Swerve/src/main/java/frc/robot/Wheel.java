@@ -25,7 +25,7 @@ public class Wheel {
         robotKnowns = new  RobotKnowns();
 
         Name = name;    //Setting the name.
-        /*
+        
         //Setting up the motor driver 
         MotorDrive = new TalonSRX(driveID);
         MotorStear = new TalonSRX(stearID);
@@ -45,7 +45,7 @@ public class Wheel {
         //Resetting the encoders
         MotorDrive.setSelectedSensorPosition(0, 0, 10);
         MotorStear.setSelectedSensorPosition(0, 0, 10);
-        */
+        
 
     }
 
@@ -68,8 +68,12 @@ public class Wheel {
 
     //Set the desire angle direction.
     public void setStearAngle(double desiredAngle){
-        curStearPos = curStearPos + findClosest(desiredAngle);
-        System.out.println(this.Name + " RC: " + wheelRotations() + " Ang: " + String.format("%.3f", curStearPos) + 
+
+        //Convert from angel to needed count.
+        double desiredCount = desiredAngle *robotKnowns.StearCountPerDegree;
+
+        curStearPos = curStearPos + findClosest(desiredCount);//desiredAngle);
+        System.out.println(this.Name + " RC: " + wheelRotations() + " Ang: " +  String.format("%.3f",desiredAngle) + " CP: " + String.format("%.3f", curStearPos) + 
                     " DS: " + curDriveVol);
 
 
@@ -115,7 +119,7 @@ public class Wheel {
     }
 
     private int wheelRotations(){
-        return (int)(curStearPos / robotKnowns.StearCountPerDegree);
+        return (int)(curStearPos / (robotKnowns.StearCountPerDegree * 360));
     }
 
 }

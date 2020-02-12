@@ -7,13 +7,13 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import frc.robot.joyController;
-import frc.robot.JoyDriveData;
-import frc.robot.ServerTCP;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -28,10 +28,10 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  private joyController jCDriver;   //Drivers controller
-  private RobotBase rbase;    //Robot chassis.
-  private Runnable bSystem; //Ball shooter system.
-  private Runnable nServer;  //Com server
+
+  private TalonSRX motorStear;
+  private TalonSRX motorDrive;
+
 
   /**
    * This function is run when the robot is first started up and should be
@@ -43,27 +43,17 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    //Setting up the controllers.
-    jCDriver = new joyController(0);  //Driver controller.
-    rbase = new RobotBase();    //Robot chassis.
-    
-    bSystem = new BallSystem();  //Starting ball system.
-    ((BallSystem) bSystem).controlBallSystem(true); // Allow the system to run ball system.
-    Thread threadBSystem = new Thread(bSystem);
-    threadBSystem.start();
+    motorStear = new TalonSRX(1);
+    motorStear.setNeutralMode(NeutralMode.Coast);
+    motorStear.configSelectedFeedbackSensor(FeedbackDevice.Analog);
 
-    //Setting up the server.
-    nServer = new ServerTCP();
-    Thread threadNServer = new Thread(nServer);
-    threadNServer.start();
-    
-  }
+    motorStear.setSelectedSensorPosition(0, 0, 10);
 
-  public void disabledInit() {
-    // TODO Auto-generated method stub
-    super.disabledInit();
+    motorDrive = new TalonSRX(6);
+    motorDrive.setNeutralMode(NeutralMode.Coast);
+    motorDrive.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
-    ((BallSystem) bSystem).enable(false);  //Shutting down ball system.
+    motorDrive.setSelectedSensorPosition(0, 0, 10);
 
   }
 
@@ -95,7 +85,6 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-
   }
 
   /**
@@ -112,25 +101,26 @@ public class Robot extends TimedRobot {
         // Put default auto code here
         break;
     }
-
-    
-    String command = ((ServerTCP) nServer).getLatestLine();
-    if(command != ""){
-      System.out.println("Command:" + command);
-    }
-
-
   }
+
+
+@Override
+public void teleopInit() {
+  // TODO Auto-generated method stub
+  super.teleopInit();
+
+  motorStear.setSelectedSensorPosition(0, 0, 10);
+  motorDrive.setSelectedSensorPosition(0, 0, 10);
+
+}
 
   /**
    * This function is called periodically during operator control.
    */
   @Override
   public void teleopPeriodic() {
-
-      JoyDriveData curDriverData = jCDriver.getDriveData();
-      rbase.driveBase(curDriverData);
-
+    System.out.println("Stear: " +  motorStear.getSelectedSensorPosition() +
+      "Drive: " + motorDrive.getSelectedSensorPosition());
 
   }
 
@@ -139,16 +129,5 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
-
-    ((BallSystem) bSystem).enable(true);
-
-    /*
-    JoyDriveData testData = new JoyDriveData();
-    testData.driveAngle = 0;
-    testData.driveSpeed = 0;
-    testData.rotateSpeed = -1.0;
-    
-    rbase.driveBase(testData);
-    */
   }
 }
