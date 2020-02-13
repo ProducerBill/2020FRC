@@ -4,8 +4,6 @@ import mss
 import mss.tools
 import PIL as Image
 
-import scipy.spatial as sp
-import matplotlib.pyplot as plt
 
 def empty(a):
     pass
