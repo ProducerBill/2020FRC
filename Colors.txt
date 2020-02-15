@@ -1,0 +1,49 @@
+Real blue settings
+Blue bottom target HSV Settings
+Low: 63,43,59
+High: 111,102,187
+
+Blue Primary colors
+Low:100,48,0
+High:126,205,173
+
+Edge Threshold
+Threshold1 = 157
+Threshold2 = 158
+
+
+Blue settings for real and sim
+Low: 23,22,134
+High: 101,102,187
+
+
+Blue Upper Taget
+Low 0,0,0
+High 179,255,255
+Edge Threshold
+Threshold1 = 255
+Threshold2 = 232
+
+
+
+
+Red Color Range
+Low1: 0,50,50
+High1: 8,255,255
+
+Low2: 170,150,131
+High2 180,255,255
+
+Edge Threshold
+Threshold1 = 165
+Threshold2 = 106
+
+Red Upper target
+low: 0,0,0
+High: 179,255,255
+Edge Threshold
+Threshold1 = 255
+Threshold2 = 203
+
+
+Both ends upper settings
