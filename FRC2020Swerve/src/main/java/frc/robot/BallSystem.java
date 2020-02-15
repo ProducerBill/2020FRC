@@ -45,19 +45,19 @@ public class BallSystem implements Runnable {
         swBallReady = new AnalogInput(2);
 
         // Setting up the motors.
-        mBallLoader = new TalonSRX(8);
+        mBallLoader = new TalonSRX(12);
         mBallLoader.setInverted(false);
         mBallLoader.setNeutralMode(NeutralMode.Brake);
 
-        mBallConveyor = new TalonSRX(9);
-        mBallConveyor.setInverted(false);
+        mBallConveyor = new TalonSRX(11);
+        mBallConveyor.setInverted(true);
         mBallLoader.setNeutralMode(NeutralMode.Brake);
 
-        mBallShootL = new TalonSRX(10);
-        mBallShootL.setInverted(false);
+        mBallShootL = new TalonSRX(9);
+        mBallShootL.setInverted(true);
         mBallLoader.setNeutralMode(NeutralMode.Coast);
 
-        mBallShootR = new TalonSRX(11);
+        mBallShootR = new TalonSRX(10);
         mBallShootR.setInverted(true);
         mBallLoader.setNeutralMode(NeutralMode.Coast);
 
@@ -157,10 +157,10 @@ public class BallSystem implements Runnable {
         isBallLoaderRunning = state;
 
         if (state) {
-            // mBallLoader.set(ControlMode.PercentOutput, 0.3);
+            mBallLoader.set(ControlMode.PercentOutput, 1.0);
             System.out.println("Ball Loader Started");
         } else {
-            // mBallLoader.set(ControlMode.PercentOutput, 0.0);
+             mBallLoader.set(ControlMode.PercentOutput, 0.0);
             System.out.println("Ball Loader Stopped.");
         }
     }
@@ -173,18 +173,18 @@ public class BallSystem implements Runnable {
         isBallLoaderRunning = state;
 
         if (state) {
-            // mBallConveyor.set(ControlMode.PercentOutput, 0.3);
+            mBallConveyor.set(ControlMode.PercentOutput, 1.0);
             System.out.println("Ball Conveyor Started");
         } else {
-            // mBallConveyor.set(ControlMode.PercentOutput, 0.0);
+            mBallConveyor.set(ControlMode.PercentOutput, 0.0);
             System.out.println("Ball Conveyor Stopped.");
         }
     }
 
     private void setBallShooter(boolean state) {
         if (state) {
-            mBallShootL.set(ControlMode.PercentOutput, 0.3);
-            mBallShootR.set(ControlMode.PercentOutput, 0.3);
+            mBallShootL.set(ControlMode.PercentOutput, 0.8);
+            mBallShootR.set(ControlMode.PercentOutput, 0.8);
         } else {
             mBallShootL.set(ControlMode.PercentOutput, 0.0);
             mBallShootR.set(ControlMode.PercentOutput, 0.0);
@@ -219,5 +219,11 @@ public class BallSystem implements Runnable {
         enableSystem = state;
     }
     
+
+    public void testSystem(){
+        setBallShooter(true);
+        setBallLoaderState(true);
+        setBallConveyorState(true);
+    }
 
 }

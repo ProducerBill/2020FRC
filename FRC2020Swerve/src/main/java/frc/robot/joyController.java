@@ -15,7 +15,7 @@ public class joyController{
         jController = new Joystick(joystickID);     //Connection to the controller.
 
         //Setting up analog dead bands.
-        deadZoneLow = 0.1;
+        deadZoneLow = 0.12;
         deadZoneHigh = 0.9;
 
     }
@@ -28,10 +28,10 @@ public class joyController{
         double[] leftXY = applyRadialDeadZone(jController.getRawAxis(0), jController.getRawAxis(1) * -1);    //Filtering output from the controller left stick
        
         //Set as axis 2 for sim but 4 for robot.
-        double[] rightXY = applyRadialDeadZone(jController.getRawAxis(2), 0);   //Filtering output from the conrolller right  sitck.
+        double[] rightXY = applyRadialDeadZone(jController.getRawAxis(4), 0);   //Filtering output from the conrolller right  sitck.
 
         //Getting the angle
-       // if(leftXY[0] != 0.0 || leftXY[1] != 0.0){
+        if(leftXY[0] != 0.0 || leftXY[1] != 0.0 || rightXY[0] != 0.0){
             double r = Math.sqrt(Math.pow(leftXY[0], 2) + Math.pow(leftXY[1], 2));
 
             //Getting the quaderant of the compass that we are working in.
@@ -65,7 +65,7 @@ public class joyController{
             tempData.rotateSpeed = rightXY[0];
             tempData.leftX = leftXY[0];
             tempData.leftY = leftXY[1];
-       // }
+        }
 
         return tempData;
     }

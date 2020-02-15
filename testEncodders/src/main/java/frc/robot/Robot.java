@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -43,13 +44,14 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    motorStear = new TalonSRX(1);
+    motorStear = new TalonSRX(2);
     motorStear.setNeutralMode(NeutralMode.Coast);
     motorStear.configSelectedFeedbackSensor(FeedbackDevice.Analog);
+    motorStear.setInverted(false);
 
     motorStear.setSelectedSensorPosition(0, 0, 10);
 
-    motorDrive = new TalonSRX(6);
+    motorDrive = new TalonSRX(2);
     motorDrive.setNeutralMode(NeutralMode.Coast);
     motorDrive.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 
@@ -109,8 +111,8 @@ public void teleopInit() {
   // TODO Auto-generated method stub
   super.teleopInit();
 
-  motorStear.setSelectedSensorPosition(0, 0, 10);
-  motorDrive.setSelectedSensorPosition(0, 0, 10);
+  motorStear.setSelectedSensorPosition(0, 0, 100);
+  motorDrive.setSelectedSensorPosition(0, 0, 100);
 
 }
 
@@ -121,6 +123,8 @@ public void teleopInit() {
   public void teleopPeriodic() {
     System.out.println("Stear: " +  motorStear.getSelectedSensorPosition() +
       "Drive: " + motorDrive.getSelectedSensorPosition());
+
+    //motorStear.set(ControlMode.PercentOutput, 0.2);
 
   }
 

@@ -23,9 +23,15 @@ public class RobotBase {
         
         baseWheels.add(new Wheel(2, 1, "FL"));  //Front Left
         baseWheels.add(new Wheel(4, 3, "FR"));  //Front Right
-        //baseWheels.add(new Wheel(5, 6, "RL"));  //Rear Left
-        //baseWheels.add(new Wheel(7, 8, "RR"));  //Rear Right
+        baseWheels.add(new Wheel(8, 7, "RL"));  //Rear Left
+        baseWheels.add(new Wheel(6, 5, "RR"));  //Rear Right
         
+    }
+
+    public void disableBase(){
+        for(int i = 0; i < baseWheels.size(); i++){
+            baseWheels.get(i).diableWheel();
+        }
     }
 
     public void driveBase(JoyDriveData data){
@@ -104,19 +110,19 @@ public class RobotBase {
             */
 
             //Setting the results to each wheel.
-            baseWheels.get(0).setSpeed(frontLeftSpeed);
+            baseWheels.get(0).setDriveVelocity(frontLeftSpeed);
             baseWheels.get(0).setStearAngle(frontLeftAngle);
             
-            baseWheels.get(1).setSpeed(frontRightSpeed);
+            baseWheels.get(1).setDriveVelocity(frontRightSpeed);
             baseWheels.get(1).setStearAngle(frontRightAngle);
 
-            /*
-            baseWheels.get(2).setSpeed(backLeftSpeed);
+            
+            baseWheels.get(2).setDriveVelocity(backLeftSpeed);
             baseWheels.get(2).setStearAngle(backLeftAngle);
 
-            baseWheels.get(3).setSpeed(backRightSpeed);
+            baseWheels.get(3).setDriveVelocity(backRightSpeed);
             baseWheels.get(3).setStearAngle(backRightAngle);
-            */
+            
         
         }
 

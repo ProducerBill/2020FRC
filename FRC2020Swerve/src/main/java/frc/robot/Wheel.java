@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 
 import frc.robot.RobotKnowns;
 
@@ -30,6 +31,21 @@ public class Wheel {
         MotorDrive = new TalonSRX(driveID);
         MotorStear = new TalonSRX(stearID);
 
+        //Setting the pid
+        TalonSRXConfiguration configDrive = new TalonSRXConfiguration();
+        configDrive.slot0.kP = 2;
+        configDrive.slot0.kI = 0;
+        configDrive.slot0.kD = 0;
+
+        TalonSRXConfiguration configStear = new TalonSRXConfiguration();
+        configStear.slot0.kP = 10;
+        configStear.slot0.kI = 0;
+        configStear.slot0.kD = 0;
+
+        //Applying configuration.
+        MotorDrive.configAllSettings(configDrive, 10);
+        MotorStear.configAllSettings(configStear, 10);
+
         //Setting up the driver direction.
         MotorDrive.setInverted(false);
         MotorStear.setInverted(false);
@@ -39,8 +55,9 @@ public class Wheel {
         MotorStear.setNeutralMode(NeutralMode.Brake);
 
         //Setting up the encoders.
-        MotorDrive.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
-        MotorStear.configSelectedFeedbackSensor(FeedbackDevice.Analog);
+        //MotorDrive.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);     //Tried an craft drifted.
+        MotorDrive.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);    //2nd Try.
+        MotorStear.configSelectedFeedbackSensor(FeedbackDevice.Analog);      
 
         //Resetting the encoders
         MotorDrive.setSelectedSensorPosition(0, 0, 10);
@@ -49,13 +66,19 @@ public class Wheel {
 
     }
 
+    public void diableWheel(){
+        MotorStear.setNeutralMode(NeutralMode.Coast);
+
+    }
+
     //Input the desire speed forward.
-    public void setSpeed(double countSpeed){
+    public void setDriveVelocity(double controllerSpeed){
 
+        //Converting the controller speed to the desired velocity.
+        curDriveVol = robotKnowns.DriveMax * controllerSpeed;
 
-        curDriveVol = countSpeed;
-
-        //MotorDrive.set(ControlMode.Velocity, countSpeed);
+        //Setting the motor to the desire velocity.
+        MotorDrive.set(ControlMode.Velocity, (int)curDriveVol);
     }
 
     public int getDriveVelocity(){
@@ -70,20 +93,27 @@ public class Wheel {
     public void setStearAngle(double desiredAngle){
 
         //Convert from angel to needed count.
-        double desiredCount = desiredAngle *robotKnowns.StearCountPerDegree;
+        double desiredCount = desiredAngle * robotKnowns.StearCountPerDegree;
 
+        //Getting the current encoder position.
+        int curReading = getStearPos();
+        curStearPos = (double)curReading;
+
+        //Setting the current possition
         curStearPos = curStearPos + findClosest(desiredCount);//desiredAngle);
+
+        
+        //Debug output.
         System.out.println(this.Name + " RC: " + wheelRotations() + " Ang: " +  String.format("%.3f",desiredAngle) + " CP: " + String.format("%.3f", curStearPos) + 
-                    " DS: " + curDriveVol);
+                    " DS: " + curDriveVol + " | " + curReading);
 
-
-
-
-        //MotorStear.set(ControlMode.Position, countPos);
+        //Setting the stearing position.
+        MotorStear.set(ControlMode.Position, (int)curStearPos);
     }
 
     public int getStearPos(){
-        return MotorStear.getSelectedSensorPosition(0);
+        return MotorStear.getSelectedSensorPosition();
+        //return (int)curStearPos;
     }
 
     private double findClosest(double sp){
@@ -94,7 +124,7 @@ public class Wheel {
 
         for(int i = wheelRotations() - 2; i< wheelRotations() + 2; i++){
             double rot = i;
-            double rotPos = (360 * rot) + sp;
+            double rotPos = (robotKnowns.StearCountPerRot * rot) + sp;
             double diff = curStearPos - rotPos;
             double diffABS = Math.abs(diff);
 

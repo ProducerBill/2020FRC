@@ -44,13 +44,15 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
 
     //Setting up the controllers.
+    
     jCDriver = new joyController(0);  //Driver controller.
     rbase = new RobotBase();    //Robot chassis.
+    
     
     bSystem = new BallSystem();  //Starting ball system.
     ((BallSystem) bSystem).controlBallSystem(true); // Allow the system to run ball system.
     Thread threadBSystem = new Thread(bSystem);
-    threadBSystem.start();
+    //threadBSystem.start();
 
     //Setting up the server.
     nServer = new ServerTCP();
@@ -63,8 +65,10 @@ public class Robot extends TimedRobot {
     // TODO Auto-generated method stub
     super.disabledInit();
 
-    ((BallSystem) bSystem).enable(false);  //Shutting down ball system.
+    //((BallSystem) bSystem).enable(false);  //Shutting down ball system.
 
+
+    rbase.disableBase();
   }
 
   /**
@@ -141,6 +145,7 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
 
     ((BallSystem) bSystem).enable(true);
+    ((BallSystem) bSystem).testSystem();
 
     /*
     JoyDriveData testData = new JoyDriveData();
