@@ -33,9 +33,10 @@ public class Wheel {
 
         //Setting the pid
         TalonSRXConfiguration configDrive = new TalonSRXConfiguration();
-        configDrive.slot0.kP = 2;
+        configDrive.slot0.kP = 5;
         configDrive.slot0.kI = 0;
         configDrive.slot0.kD = 0;
+        configDrive.slot0.kF = 2;
 
         TalonSRXConfiguration configStear = new TalonSRXConfiguration();
         configStear.slot0.kP = 10;
@@ -45,6 +46,8 @@ public class Wheel {
         //Applying configuration.
         MotorDrive.configAllSettings(configDrive, 10);
         MotorStear.configAllSettings(configStear, 10);
+
+        MotorDrive.setSensorPhase(true);
 
         //Setting up the driver direction.
         MotorDrive.setInverted(false);
@@ -75,10 +78,12 @@ public class Wheel {
     public void setDriveVelocity(double controllerSpeed){
 
         //Converting the controller speed to the desired velocity.
-        curDriveVol = robotKnowns.DriveMax * controllerSpeed;
+        curDriveVol = robotKnowns.DriveMax * controllerSpeed * -1;
 
         //Setting the motor to the desire velocity.
         MotorDrive.set(ControlMode.Velocity, (int)curDriveVol);
+
+        System.out.println(this.Name + " DV: " + getDriveVelocity() +  " DC: " + String.format("%.2f",curDriveVol));
     }
 
     public int getDriveVelocity(){
@@ -104,8 +109,10 @@ public class Wheel {
 
         
         //Debug output.
-        System.out.println(this.Name + " RC: " + wheelRotations() + " Ang: " +  String.format("%.3f",desiredAngle) + " CP: " + String.format("%.3f", curStearPos) + 
-                    " DS: " + curDriveVol + " | " + curReading);
+        // System.out.println(this.Name + " RC: " + wheelRotations() + " Ang: " +  String.format("%.3f",desiredAngle) + " CP: " + String.format("%.3f", curStearPos) + 
+        //             " DS: " + curDriveVol + " | " + curReading);
+
+        
 
         //Setting the stearing position.
         MotorStear.set(ControlMode.Position, (int)curStearPos);

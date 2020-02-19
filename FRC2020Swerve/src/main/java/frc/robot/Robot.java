@@ -45,6 +45,7 @@ public class Robot extends TimedRobot {
 
     //Setting up the controllers.
     
+    
     jCDriver = new joyController(0);  //Driver controller.
     rbase = new RobotBase();    //Robot chassis.
     
@@ -117,11 +118,19 @@ public class Robot extends TimedRobot {
         break;
     }
 
-    
+    /* //If we use ascii formatted commands.
     String command = ((ServerTCP) nServer).getLatestLine();
     if(command != ""){
       System.out.println("Command:" + command);
     }
+*/
+
+    byte[] command = ((ServerTCP) nServer).getCurBufferData();
+
+    if(command != null){
+      System.out.println(command.toString());
+    }
+    
 
 
   }
@@ -132,8 +141,15 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-      JoyDriveData curDriverData = jCDriver.getDriveData();
-      rbase.driveBase(curDriverData);
+    JoyDriveData curDriverData = jCDriver.getDriveData();
+    /*
+    curDriverData = new JoyDriveData();
+    curDriverData.driveAngle = 0;
+    curDriverData.driveSpeed = 0.1;
+    curDriverData.leftX = 0;
+    curDriverData.leftY = 0.2;
+*/
+    rbase.driveBase(curDriverData);
 
 
   }

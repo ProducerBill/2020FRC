@@ -84,8 +84,8 @@ public class joyController{
             double legalRange = 1.0f - ((1.0 - deadZoneHigh) + deadZoneLow);
             double normalizedMag = Math.min(1.0f, (mag - deadZoneLow) / legalRange);
             double scale = normalizedMag / mag; 
-            pOutX = inputX * scale;
-            pOutY = inputY * scale;
+            pOutX = inputX * (scale * 0.5);
+            pOutY = inputY * (scale * 0.5);
         }
         else
         {

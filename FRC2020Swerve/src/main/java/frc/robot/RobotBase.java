@@ -113,6 +113,7 @@ public class RobotBase {
             baseWheels.get(0).setDriveVelocity(frontLeftSpeed);
             baseWheels.get(0).setStearAngle(frontLeftAngle);
             
+            
             baseWheels.get(1).setDriveVelocity(frontRightSpeed);
             baseWheels.get(1).setStearAngle(frontRightAngle);
 
@@ -124,11 +125,16 @@ public class RobotBase {
             baseWheels.get(3).setStearAngle(backRightAngle);
             
         
+        } else {    //If no input stop the wheel.
+            for(int i = 0; i< baseWheels.size(); i++){
+                baseWheels.get(i).setDriveVelocity(0);
+            }
+            
         }
 
 
         
-    }
+    } 
 
 
 }
