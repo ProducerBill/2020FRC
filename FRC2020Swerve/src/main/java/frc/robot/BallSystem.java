@@ -132,7 +132,7 @@ public class BallSystem implements Runnable {
     }
 
     private void readSwitchState() {
-
+        
         if (swBallLoader.getValue() < 100) {
             curBallLoaderState = true;
         } else {
@@ -150,6 +150,8 @@ public class BallSystem implements Runnable {
         } else {
             curBallReadyState = false;
         }
+        
+
     }
 
     private void setBallLoaderState(boolean state) {

@@ -135,6 +135,16 @@ public class Robot extends TimedRobot {
 
   }
 
+
+  @Override
+  public void teleopInit() {
+    // TODO Auto-generated method stub
+    super.teleopInit();
+
+    ((BallSystem) bSystem).enable(true);  //Starting ball system.
+  }
+
+
   /**
    * This function is called periodically during operator control.
    */

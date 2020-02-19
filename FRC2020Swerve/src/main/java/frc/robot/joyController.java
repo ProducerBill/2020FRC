@@ -98,6 +98,10 @@ public class joyController{
 
     }
 
+    public void getButtonState(){
+        
+    }
+
     private double getCompassQuad(double x, double y){
         //=IF(AND(B3>=0,B2>=0),0,IF(AND(B3<0,B2>0),90,IF(AND(B3<=0,B2<=0),180,IF(AND(B3>0,B2<0),270,0))))
         if(y >= 0 && x >= 0){
