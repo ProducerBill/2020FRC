@@ -7,10 +7,17 @@
 
 package frc.robot;
 
+import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -33,6 +40,11 @@ public class Robot extends TimedRobot {
   private TalonSRX motorStear;
   private TalonSRX motorDrive;
 
+  //Logging items.
+  File f;
+  BufferedWriter bw;
+  FileWriter fw;
+
 
   /**
    * This function is run when the robot is first started up and should be
@@ -44,7 +56,27 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    motorStear = new TalonSRX(2);
+    //Setting the pid
+    TalonSRXConfiguration configDrive = new TalonSRXConfiguration();
+    configDrive.slot0.kP = 5;
+    configDrive.slot0.kI = 0;
+    configDrive.slot0.kD = 0;
+    configDrive.slot0.kF = 2;
+
+    TalonSRXConfiguration configStear = new TalonSRXConfiguration();
+    configStear.slot0.kP = 10;
+    configStear.slot0.kI = 0;
+    configStear.slot0.kD = 0;
+
+
+
+    //baseWheels.add(new Wheel(2, 1, "FL"));  //Front Left
+    //baseWheels.add(new Wheel(4, 3, "FR"));  //Front Right
+    //baseWheels.add(new Wheel(8, 7, "RL"));  //Rear Left
+    //baseWheels.add(new Wheel(6, 5, "RR"));  //Rear Right
+
+    motorStear = new TalonSRX(1);
+    motorStear.configAllSettings(configStear, 10);
     motorStear.setNeutralMode(NeutralMode.Coast);
     motorStear.configSelectedFeedbackSensor(FeedbackDevice.Analog);
     motorStear.setInverted(false);
@@ -52,10 +84,29 @@ public class Robot extends TimedRobot {
     motorStear.setSelectedSensorPosition(0, 0, 10);
 
     motorDrive = new TalonSRX(2);
+    motorDrive.configAllSettings(configDrive, 10);
     motorDrive.setNeutralMode(NeutralMode.Coast);
-    motorDrive.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+    motorDrive.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
     motorDrive.setSelectedSensorPosition(0, 0, 10);
+
+    Date date = Calendar.getInstance().getTime();  
+    DateFormat dateFormat = new SimpleDateFormat("yyyymmddHHmmss");  
+    String strDate = dateFormat.format(date);  
+
+    try {
+      f = new File("~
+      /" + strDate + "-Output.csv");
+      if(!f.exists()){
+      f.createNewFile();
+    }
+      fw = new FileWriter(f);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    bw = new BufferedWriter(fw);
+
 
   }
 
@@ -111,8 +162,8 @@ public void teleopInit() {
   // TODO Auto-generated method stub
   super.teleopInit();
 
-  motorStear.setSelectedSensorPosition(0, 0, 100);
-  motorDrive.setSelectedSensorPosition(0, 0, 100);
+  motorStear.setSelectedSensorPosition(0, 0, 10);
+  motorDrive.setSelectedSensorPosition(0, 0, 10);
 
 }
 
@@ -121,12 +172,43 @@ public void teleopInit() {
    */
   @Override
   public void teleopPeriodic() {
+
+    Date date = Calendar.getInstance().getTime();  
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");  
+    String strDate = dateFormat.format(date);  
+    
+
+    int driveVelSetting = 0;
+    motorDrive.set(ControlMode.Velocity, driveVelSetting);
+
+    int posStear = motorStear.getSelectedSensorPosition();
+    int velDrive = motorDrive.getSelectedSensorPosition();
+
+    int stearID = motorStear.getBaseID();
+    int driveID = motorDrive.getBaseID();
+
     System.out.println("Stear: " +  motorStear.getSelectedSensorPosition() +
       "Drive: " + motorDrive.getSelectedSensorPosition());
 
     //motorStear.set(ControlMode.PercentOutput, 0.2);
 
+    try {
+      bw.write(strDate + "," +
+              String.valueOf(stearID) + "," +
+
+              String.valueOf(driveID) + "," +
+              String.valueOf(posStear) + "," +
+              String.valueOf(velDrive) + "," +
+              String.valueOf(driveVelSetting) + "\r\n");
+      bw.close();
+      fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
   }
+
 
   /**
    * This function is called periodically during test mode.
