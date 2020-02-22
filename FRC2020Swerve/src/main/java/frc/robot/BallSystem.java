@@ -217,6 +217,12 @@ public class BallSystem implements Runnable {
         fireBall = true;
     }
 
+    public void setLoaderState(boolean state){
+        setBallLoaderState(state);
+    }
+
+
+
     public void enable(boolean state){
         enableSystem = state;
     }

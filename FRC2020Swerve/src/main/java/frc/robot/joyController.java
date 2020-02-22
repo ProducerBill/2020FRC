@@ -10,6 +10,8 @@ public class joyController{
     public double deadZoneLow; // in: distance from zero to ignore
     public double deadZoneHigh; // in: distance from unit circle to ignore
 
+    public double driveScale = 0.5;
+
     public joyController(int joystickID){
 
         jController = new Joystick(joystickID);     //Connection to the controller.
@@ -21,8 +23,11 @@ public class joyController{
     }
 
     //Gets the drive informaiton. Speed and direction and angle.
-    public JoyDriveData getDriveData(){
+    public JoyDriveData getDriveData(double desiredScale){
         
+        //Setting the drive scaler setting.
+        driveScale = desiredScale;
+
         JoyDriveData tempData = new JoyDriveData();
         
         double[] leftXY = applyRadialDeadZone(jController.getRawAxis(0), jController.getRawAxis(1) * -1);    //Filtering output from the controller left stick
@@ -84,8 +89,8 @@ public class joyController{
             double legalRange = 1.0f - ((1.0 - deadZoneHigh) + deadZoneLow);
             double normalizedMag = Math.min(1.0f, (mag - deadZoneLow) / legalRange);
             double scale = normalizedMag / mag; 
-            pOutX = inputX * (scale * 0.5);
-            pOutY = inputY * (scale * 0.5);
+            pOutX = inputX * (scale * driveScale);
+            pOutY = inputY * (scale * driveScale);
         }
         else
         {
@@ -98,8 +103,22 @@ public class joyController{
 
     }
 
-    public void getButtonState(){
-        
+    public JoyDriveData getButtonState(JoyDriveData curJoyData){
+        curJoyData.aButton = jController.getRawButton(0);
+        curJoyData.bButton = jController.getRawButton(1);
+        curJoyData.xButton = jController.getRawButton(2);
+        curJoyData.yButton = jController.getRawButton(3);
+        curJoyData.bumperLeft = jController.getRawButton(4);
+        curJoyData.bumperRight = jController.getRawButton(5);
+
+        return curJoyData;
+    }
+
+    public JoyDriveData getTriggerState(JoyDriveData curJoyData){
+        curJoyData.triggerLeft = jController.getRawAxis(2);
+        curJoyData.triggerRight = jController.getRawAxis(3);
+
+        return curJoyData;
     }
 
     private double getCompassQuad(double x, double y){

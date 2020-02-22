@@ -36,19 +36,17 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-
   private TalonSRX motorStear;
   private TalonSRX motorDrive;
 
-  //Logging items.
+  // Logging items.
   File f;
   BufferedWriter bw;
   FileWriter fw;
 
-
   /**
-   * This function is run when the robot is first started up and should be
-   * used for any initialization code.
+   * This function is run when the robot is first started up and should be used
+   * for any initialization code.
    */
   @Override
   public void robotInit() {
@@ -56,7 +54,7 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    //Setting the pid
+    // Setting the pid
     TalonSRXConfiguration configDrive = new TalonSRXConfiguration();
     configDrive.slot0.kP = 5;
     configDrive.slot0.kI = 0;
@@ -67,15 +65,13 @@ public class Robot extends TimedRobot {
     configStear.slot0.kP = 10;
     configStear.slot0.kI = 0;
     configStear.slot0.kD = 0;
+ 
+    // baseWheels.add(new Wheel(2, 1, "FL")); //Front Left
+    // baseWheels.add(new Wheel(4, 3, "FR")); //Front Right
+    // baseWheels.add(new Wheel(8, 7, "RL")); //Rear Left
+    // baseWheels.add(new Wheel(6, 5, "RR")); //Rear Right
 
-
-
-    //baseWheels.add(new Wheel(2, 1, "FL"));  //Front Left
-    //baseWheels.add(new Wheel(4, 3, "FR"));  //Front Right
-    //baseWheels.add(new Wheel(8, 7, "RL"));  //Rear Left
-    //baseWheels.add(new Wheel(6, 5, "RR"));  //Rear Right
-
-    motorStear = new TalonSRX(1);
+    motorStear = new TalonSRX(5);
     motorStear.configAllSettings(configStear, 10);
     motorStear.setNeutralMode(NeutralMode.Coast);
     motorStear.configSelectedFeedbackSensor(FeedbackDevice.Analog);
@@ -83,23 +79,23 @@ public class Robot extends TimedRobot {
 
     motorStear.setSelectedSensorPosition(0, 0, 10);
 
-    motorDrive = new TalonSRX(2);
+    motorDrive = new TalonSRX(6);
     motorDrive.configAllSettings(configDrive, 10);
     motorDrive.setNeutralMode(NeutralMode.Coast);
     motorDrive.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+    motorDrive.setSensorPhase(true);
 
     motorDrive.setSelectedSensorPosition(0, 0, 10);
 
-    Date date = Calendar.getInstance().getTime();  
-    DateFormat dateFormat = new SimpleDateFormat("yyyymmddHHmmss");  
-    String strDate = dateFormat.format(date);  
+    Date date = Calendar.getInstance().getTime(); 
+    DateFormat dateFormat = new SimpleDateFormat("yyyymmddHHmmss");
+    String strDate = dateFormat.format(date);
 
     try {
-      f = new File("~
-      /" + strDate + "-Output.csv");
-      if(!f.exists()){
-      f.createNewFile();
-    }
+      f = new File("/data/" + strDate + "-Output.csv");
+      if (!f.exists()) {
+        f.createNewFile();
+      }
       fw = new FileWriter(f);
     } catch (IOException e) {
       // TODO Auto-generated catch block
@@ -107,16 +103,16 @@ public class Robot extends TimedRobot {
     }
     bw = new BufferedWriter(fw);
 
-
   }
 
   /**
-   * This function is called every robot packet, no matter the mode. Use
-   * this for items like diagnostics that you want ran during disabled,
-   * autonomous, teleoperated and test.
+   * This function is called every robot packet, no matter the mode. Use this for
+   * items like diagnostics that you want ran during disabled, autonomous,
+   * teleoperated and test.
    *
-   * <p>This runs after the mode specific periodic functions, but before
-   * LiveWindow and SmartDashboard integrated updating.
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and SmartDashboard integrated updating.
    */
   @Override
   public void robotPeriodic() {
@@ -124,14 +120,15 @@ public class Robot extends TimedRobot {
 
   /**
    * This autonomous (along with the chooser code above) shows how to select
-   * between different autonomous modes using the dashboard. The sendable
-   * chooser code works with the Java SmartDashboard. If you prefer the
-   * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-   * getString line to get the auto name from the text box below the Gyro
+   * between different autonomous modes using the dashboard. The sendable chooser
+   * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
+   * remove all of the chooser code and uncomment the getString line to get the
+   * auto name from the text box below the Gyro
    *
-   * <p>You can add additional auto modes by adding additional comparisons to
-   * the switch structure below with additional strings. If using the
-   * SendableChooser make sure to add them to the chooser code above as well.
+   * <p>
+   * You can add additional auto modes by adding additional comparisons to the
+   * switch structure below with additional strings. If using the SendableChooser
+   * make sure to add them to the chooser code above as well.
    */
   @Override
   public void autonomousInit() {
@@ -146,26 +143,25 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
+    case kCustomAuto:
+      // Put custom auto code here
+      break;
+    case kDefaultAuto:
+    default:
+      // Put default auto code here
+      break;
     }
   }
 
+  @Override
+  public void teleopInit() {
+    // TODO Auto-generated method stub
+    super.teleopInit();
 
-@Override
-public void teleopInit() {
-  // TODO Auto-generated method stub
-  super.teleopInit();
+    motorStear.setSelectedSensorPosition(0, 0, 10);
+    motorDrive.setSelectedSensorPosition(0, 0, 10);
 
-  motorStear.setSelectedSensorPosition(0, 0, 10);
-  motorDrive.setSelectedSensorPosition(0, 0, 10);
-
-}
+  }
 
   /**
    * This function is called periodically during operator control.
@@ -173,47 +169,58 @@ public void teleopInit() {
   @Override
   public void teleopPeriodic() {
 
-    Date date = Calendar.getInstance().getTime();  
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");  
-    String strDate = dateFormat.format(date);  
-    
+    Date date = Calendar.getInstance().getTime();
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+    String strDate = dateFormat.format(date);
 
     int driveVelSetting = 0;
     motorDrive.set(ControlMode.Velocity, driveVelSetting);
 
     int posStear = motorStear.getSelectedSensorPosition();
-    int velDrive = motorDrive.getSelectedSensorPosition();
+    int velDrive = motorDrive.getSelectedSensorVelocity();
 
     int stearID = motorStear.getBaseID();
     int driveID = motorDrive.getBaseID();
 
-    System.out.println("Stear: " +  motorStear.getSelectedSensorPosition() +
-      "Drive: " + motorDrive.getSelectedSensorPosition());
+    System.out.println(
+        "Stear: " + motorStear.getSelectedSensorPosition() + "Drive: " + motorDrive.getSelectedSensorVelocity());
 
-    //motorStear.set(ControlMode.PercentOutput, 0.2);
+    // motorStear.set(ControlMode.PercentOutput, 0.2);
 
     try {
-      bw.write(strDate + "," +
-              String.valueOf(stearID) + "," +
+      // fw = new FileWriter(f);
 
-              String.valueOf(driveID) + "," +
-              String.valueOf(posStear) + "," +
-              String.valueOf(velDrive) + "," +
-              String.valueOf(driveVelSetting) + "\r\n");
-      bw.close();
-      fw.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+      // bw = new BufferedWriter(fw);
+
+      try {
+        bw.write(strDate + "," + String.valueOf(stearID) + "," +
+
+            String.valueOf(driveID) + "," + String.valueOf(posStear) + "," + String.valueOf(velDrive) + ","
+            + String.valueOf(driveVelSetting) + "\r\n");
+        //bw.close();
+        //fw.close();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    } catch (Exception e) {
+      System.out.print(e.getMessage());
+    }
 
   }
-
 
   /**
    * This function is called periodically during test mode.
    */
   @Override
   public void testPeriodic() {
+    try {
+      bw.close();
+      fw.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+      
   }
 }

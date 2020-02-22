@@ -29,6 +29,7 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   private joyController jCDriver;   //Drivers controller
+  private joyController jCShooter;  //Shooter controller
   private RobotBase rbase;    //Robot chassis.
   private Runnable bSystem; //Ball shooter system.
   private Runnable nServer;  //Com server
@@ -47,13 +48,22 @@ public class Robot extends TimedRobot {
     
     
     jCDriver = new joyController(0);  //Driver controller.
+
+    try{
+      jCShooter = new joyController(1); //Setting up the shooter controller.
+    } catch (Exception e){
+      System.out.println(e.getMessage());
+      System.out.println("Setting the driver to be shooter.");
+      jCShooter = jCDriver;
+    }
+
     rbase = new RobotBase();    //Robot chassis.
     
     
     bSystem = new BallSystem();  //Starting ball system.
     ((BallSystem) bSystem).controlBallSystem(true); // Allow the system to run ball system.
     Thread threadBSystem = new Thread(bSystem);
-    //threadBSystem.start();
+    threadBSystem.start();
 
     //Setting up the server.
     nServer = new ServerTCP();
@@ -151,16 +161,26 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    JoyDriveData curDriverData = jCDriver.getDriveData();
-    /*
-    curDriverData = new JoyDriveData();
-    curDriverData.driveAngle = 0;
-    curDriverData.driveSpeed = 0.1;
-    curDriverData.leftX = 0;
-    curDriverData.leftY = 0.2;
-*/
-    rbase.driveBase(curDriverData);
+    //Getting the analolg stick data.
+    JoyDriveData curDriverData = jCDriver.getDriveData(0.5);
+    JoyDriveData curShooterData = jCShooter.getDriveData(0.25);
 
+    //Getting the controller button states.
+    curDriverData = jCDriver.getButtonState(curDriverData); //Getting the button state.
+    curShooterData = jCShooter.getButtonState(curShooterData);  //Getting the shooter button state.
+
+
+    if(curShooterData.triggerRight < 0.8){
+      rbase.driveBase(curDriverData);
+    } else {
+      rbase.driveBase(curShooterData);
+    }
+    //This needs to be moved to the other controller.
+    if(curShooterData.aButton == true){
+      ((BallSystem) bSystem).fireBall();
+    }
+
+    
 
   }
 
@@ -170,16 +190,19 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
 
-    ((BallSystem) bSystem).enable(true);
-    ((BallSystem) bSystem).testSystem();
+    //((BallSystem) bSystem).enable(true);
+    //((BallSystem) bSystem).testSystem();
 
-    /*
-    JoyDriveData testData = new JoyDriveData();
-    testData.driveAngle = 0;
-    testData.driveSpeed = 0;
-    testData.rotateSpeed = -1.0;
+        
+    JoyDriveData curDriverData = new JoyDriveData();
+
+    curDriverData = new JoyDriveData();
+    curDriverData.driveAngle = 0;
+    curDriverData.driveSpeed = 0.1;
+    curDriverData.leftX = 0.0;
+    curDriverData.leftY = 1.0;
+
+    rbase.driveBase(curDriverData);
     
-    rbase.driveBase(testData);
-    */
   }
 }

@@ -33,7 +33,7 @@ public class Wheel {
 
         //Setting the pid
         TalonSRXConfiguration configDrive = new TalonSRXConfiguration();
-        configDrive.slot0.kP = 5;
+        configDrive.slot0.kP = 4;
         configDrive.slot0.kI = 0;
         configDrive.slot0.kD = 0;
         configDrive.slot0.kF = 2;
@@ -131,7 +131,7 @@ public class Wheel {
 
         for(int i = wheelRotations() - 2; i< wheelRotations() + 2; i++){
             double rot = i;
-            double rotPos = (robotKnowns.StearCountPerRot * rot) + sp;
+            double rotPos = (robotKnowns.getStearCount(Name) * rot) + sp;
             double diff = curStearPos - rotPos;
             double diffABS = Math.abs(diff);
 
@@ -156,7 +156,7 @@ public class Wheel {
     }
 
     private int wheelRotations(){
-        return (int)(curStearPos / (robotKnowns.StearCountPerDegree * 360));
+        return (int)(curStearPos / (robotKnowns.getStearCountPreDegree(Name) * 360)); //robotKnowns.getStearCountPerDegree(Name) * 360));
     }
 
 }
