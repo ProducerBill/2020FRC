@@ -4,7 +4,7 @@ public class RobotKnowns{
 
     public double StearCountPerDegree;     //Count per degree of turn.
     public double StearCountPerRot = 864.0; //Count per rotation of stearing
-    public double[] StearCounts = {857.31, 843.77, 857.40, 860.35};     //Stearing Count FL, FR, RL, RR
+    public double[] StearCounts = {857.31, 844.77, 857.40, 860.35};     //Stearing Count FL, FR, RL, RR
     public double DriveCountPerRotation = 500.0;        //Count of the meters traveled per rev of wheel.
     public double DriveMin = 0.0;             //Min drive count velocity.
     public double DriveMax;                 //Max drive count velocity. meter / 100ms

@@ -83,7 +83,7 @@ public class Wheel {
         //Setting the motor to the desire velocity.
         MotorDrive.set(ControlMode.Velocity, (int)curDriveVol);
 
-        System.out.println(this.Name + " DV: " + getDriveVelocity() +  " DC: " + String.format("%.2f",curDriveVol));
+        //System.out.println(this.Name + " DV: " + getDriveVelocity() +  " DC: " + String.format("%.2f",curDriveVol));
     }
 
     public int getDriveVelocity(){

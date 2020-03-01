@@ -11,10 +11,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import frc.robot.joyController;
-import frc.robot.JoyDriveData;
-import frc.robot.ServerTCP;
-
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -28,10 +24,6 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  private joyController jCDriver;   //Drivers controller
-  private joyController jCShooter;  //Shooter controller
-  private RobotBase rbase;    //Robot chassis.
-  private Runnable bSystem; //Ball shooter system.
   private Runnable nServer;  //Com server
 
   /**
@@ -44,42 +36,10 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    //Setting up the controllers.
-    
-    
-    jCDriver = new joyController(0);  //Driver controller.
-
-    try{
-      jCShooter = new joyController(1); //Setting up the shooter controller.
-    } catch (Exception e){
-      System.out.println(e.getMessage());
-      System.out.println("Setting the driver to be shooter.");
-      jCShooter = jCDriver;
-    }
-
-    rbase = new RobotBase();    //Robot chassis.
-    
-    
-    bSystem = new BallSystem();  //Starting ball system.
-    ((BallSystem) bSystem).controlBallSystem(true); // Allow the system to run ball system.
-    Thread threadBSystem = new Thread(bSystem);
-    threadBSystem.start();
-
     //Setting up the server.
     nServer = new ServerTCP();
     Thread threadNServer = new Thread(nServer);
-    //threadNServer.start();
-    
-  }
-
-  public void disabledInit() {
-    // TODO Auto-generated method stub
-    super.disabledInit();
-
-    //((BallSystem) bSystem).enable(false);  //Shutting down ball system.
-
-
-    rbase.disableBase();
+    threadNServer.start();
   }
 
   /**
@@ -110,7 +70,6 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-
   }
 
   /**
@@ -127,61 +86,13 @@ public class Robot extends TimedRobot {
         // Put default auto code here
         break;
     }
-
-    /* //If we use ascii formatted commands.
-    String command = ((ServerTCP) nServer).getLatestLine();
-    if(command != ""){
-      System.out.println("Command:" + command);
-    }
-*/
-
-    byte[] command = ((ServerTCP) nServer).getCurBufferData();
-
-    if(command != null){
-      System.out.println(command.toString());
-    }
-    
-
-
   }
-
-
-  @Override
-  public void teleopInit() {
-    // TODO Auto-generated method stub
-    super.teleopInit();
-
-    ((BallSystem) bSystem).enable(true);  //Starting ball system.
-  }
-
 
   /**
    * This function is called periodically during operator control.
    */
   @Override
   public void teleopPeriodic() {
-
-    //Getting the analolg stick data.
-    JoyDriveData curDriverData = jCDriver.getDriveData(0.5);
-    JoyDriveData curShooterData = jCShooter.getDriveData(0.25);
-
-    //Getting the controller button states.
-    curDriverData = jCDriver.getButtonState(curDriverData); //Getting the button state.
-    curShooterData = jCShooter.getButtonState(curShooterData);  //Getting the shooter button state.
-
-
-    if(curShooterData.triggerRight < 0.8){
-      rbase.driveBase(curDriverData);
-    } else {
-      rbase.driveBase(curShooterData);
-    }
-    //This needs to be moved to the other controller.
-    if(curShooterData.aButton == true){
-      ((BallSystem) bSystem).fireBall();
-    }
-
-    
-
   }
 
   /**
@@ -189,20 +100,5 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
-
-    ((BallSystem) bSystem).enable(true);
-    ((BallSystem) bSystem).testSystem();
-
-    /*    
-    JoyDriveData curDriverData = new JoyDriveData();
-
-    curDriverData = new JoyDriveData();
-    curDriverData.driveAngle = 0;
-    curDriverData.driveSpeed = 0.1;
-    curDriverData.leftX = 0.0;
-    curDriverData.leftY = 1.0;
-
-    rbase.driveBase(curDriverData);
-    */
   }
 }
