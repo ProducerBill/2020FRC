@@ -49,13 +49,8 @@ public class Robot extends TimedRobot {
     
     jCDriver = new joyController(0);  //Driver controller.
 
-    try{
-      jCShooter = new joyController(1); //Setting up the shooter controller.
-    } catch (Exception e){
-      System.out.println(e.getMessage());
-      System.out.println("Setting the driver to be shooter.");
-      jCShooter = jCDriver;
-    }
+    jCShooter = new joyController(1); //Setting up the shooter controller.
+
 
     rbase = new RobotBase();    //Robot chassis.
     
@@ -76,7 +71,7 @@ public class Robot extends TimedRobot {
     // TODO Auto-generated method stub
     super.disabledInit();
 
-    //((BallSystem) bSystem).enable(false);  //Shutting down ball system.
+    ((BallSystem) bSystem).enable(false);  //Shutting down ball system.
 
 
     rbase.disableBase();
@@ -170,14 +165,19 @@ public class Robot extends TimedRobot {
     curShooterData = jCShooter.getButtonState(curShooterData);  //Getting the shooter button state.
 
 
-    if(curShooterData.triggerRight < 0.8){
+    //if(curShooterData.xButton == true){
       rbase.driveBase(curDriverData);
-    } else {
-      rbase.driveBase(curShooterData);
-    }
+    //} else {
+    //  rbase.driveBase(curShooterData);
+    //}
     //This needs to be moved to the other controller.
     if(curShooterData.aButton == true){
+      System.out.println("Shoot");
       ((BallSystem) bSystem).fireBall();
+    }
+
+    if(curShooterData.bButton == true){
+      ((BallSystem) bSystem).setConveyorDirection(!((BallSystem) bSystem).conveyorDir);
     }
 
     

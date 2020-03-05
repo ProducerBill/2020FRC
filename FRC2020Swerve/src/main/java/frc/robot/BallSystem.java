@@ -38,6 +38,8 @@ public class BallSystem implements Runnable {
 
     private boolean fireBall = false; // Command to fire ball.
 
+    public boolean conveyorDir = true;
+
     public BallSystem() {
         // Setting up sensors.
         swBallLoader = new AnalogInput(0);
@@ -50,16 +52,16 @@ public class BallSystem implements Runnable {
         mBallLoader.setNeutralMode(NeutralMode.Brake);
 
         mBallConveyor = new TalonSRX(11);
-        mBallConveyor.setInverted(true);
-        mBallLoader.setNeutralMode(NeutralMode.Brake);
+        mBallConveyor.setInverted(conveyorDir);
+        mBallConveyor.setNeutralMode(NeutralMode.Brake);
 
         mBallShootL = new TalonSRX(9);
         mBallShootL.setInverted(true);
-        mBallLoader.setNeutralMode(NeutralMode.Coast);
+        mBallShootL.setNeutralMode(NeutralMode.Coast);
 
         mBallShootR = new TalonSRX(10);
         mBallShootR.setInverted(true);
-        mBallLoader.setNeutralMode(NeutralMode.Coast);
+        mBallShootR.setNeutralMode(NeutralMode.Coast);
 
         runState = 1;
 
@@ -86,39 +88,45 @@ public class BallSystem implements Runnable {
                 readSwitchState();
 
                 // Updating the time passed on timed items.
-                long timePassedBallLoader = new Date().getTime() - dateBallLoaderStart.getTime();
-                // System.out.println("Ball ms Passed: " + timePassedBallLoader);
+                // long timePassedBallLoader = new Date().getTime() - dateBallLoaderStart.getTime();
+                // // System.out.println("Ball ms Passed: " + timePassedBallLoader);
 
-                // If loader is true run the ball loader.
-                if (curBallLoaderState == true) {
-                    System.out.println("Starting the ball loader.");
-                    dateBallLoaderStart = new Date();
+                // // If loader is true run the ball loader.
+                // if (curBallLoaderState == true) {
+                //     System.out.println("Starting the ball loader.");
+                //     dateBallLoaderStart = new Date();
 
-                    // Start ball loader.
-                    setBallLoaderState(true);
-                }
+                //     // Start ball loader.
+                //     setBallLoaderState(true);
+                // }
 
-                // If the loader is clear and the loader is running and time has elapsed stop
-                // ball loader.
-                if (curBallLoaderState == false && isBallLoaderRunning == true
-                        && timePassedBallLoader > runTimeBallLoader) {
-                    System.out.println("Stopping the ball loader.");
-                    setBallLoaderState(false);
-                }
+                // // If the loader is clear and the loader is running and time has elapsed stop
+                // // ball loader.
+                // if (curBallLoaderState == false && isBallLoaderRunning == true
+                //         && timePassedBallLoader > runTimeBallLoader) {
+                //     System.out.println("Stopping the ball loader.");
+                //     setBallLoaderState(false);
+                // }
 
-                // If conveyor is true and ready is false run belt until ready is true.
-                if (curBallLoaderState == true && curBallReadyState == false) {
-                    setBallConveyorState(true);
+                // // If conveyor is true and ready is false run belt until ready is true.
+                // if (curBallLoaderState == true && curBallReadyState == false) {
+                //     setBallConveyorState(true);
                     
-                }
+                // }
+
+                setBallLoaderState(true);
+
 
                 //Stop the ball if at the ready state.
                 if(curBallReadyState == true){
                     setBallConveyorState(false);
+                } else {
+                    setBallConveyorState(true);
                 }
 
                 if (fireBall) {
                     controlFireBall();
+                    fireBall = false;
                 }
             }
             try {
@@ -133,19 +141,23 @@ public class BallSystem implements Runnable {
 
     private void readSwitchState() {
         
-        if (swBallLoader.getValue() < 100) {
-            curBallLoaderState = true;
-        } else {
-            curBallLoaderState = false;
-        }
+        // if (swBallLoader.getValue() < 500) {
+        //     curBallLoaderState = true;
+        // } else {
+        //     curBallLoaderState = false;
+        // }
 
-        if (swBallConveyor.getValue() < 100) {
-            curBallConveyorState = true;
-        } else {
-            curBallConveyorState = false;
-        }
+        // if (swBallConveyor.getValue() < 500) {
+        //     curBallConveyorState = true;
+        // } else {
+        //     curBallConveyorState = false;
+        // }
 
-        if (swBallReady.getValue() < 100) {
+        curBallLoaderState = true;
+
+        curBallConveyorState = true;
+
+        if (swBallReady.getValue() < 500) {
             curBallReadyState = true;
         } else {
             curBallReadyState = false;
@@ -160,10 +172,10 @@ public class BallSystem implements Runnable {
 
         if (state) {
             mBallLoader.set(ControlMode.PercentOutput, 1.0);
-            System.out.println("Ball Loader Started");
+           // System.out.println("Ball Loader Started");
         } else {
              mBallLoader.set(ControlMode.PercentOutput, 0.0);
-            System.out.println("Ball Loader Stopped.");
+            //System.out.println("Ball Loader Stopped.");
         }
     }
 
@@ -171,15 +183,19 @@ public class BallSystem implements Runnable {
         mBallLoader.setInverted(state);
     }
 
+    private void setBallConveyorDirection(boolean state){
+        mBallConveyor.setInverted(state);
+    }
+
     private void setBallConveyorState(boolean state) {
         isBallLoaderRunning = state;
 
         if (state) {
             mBallConveyor.set(ControlMode.PercentOutput, 1.0);
-            System.out.println("Ball Conveyor Started");
+            //System.out.println("Ball Conveyor Started");
         } else {
             mBallConveyor.set(ControlMode.PercentOutput, 0.0);
-            System.out.println("Ball Conveyor Stopped.");
+            //System.out.println("Ball Conveyor Stopped.");
         }
     }
 
@@ -207,6 +223,17 @@ public class BallSystem implements Runnable {
 
         //Index conveyor forward.
         setBallConveyorState(true);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        setBallConveyorState(false);
+
+        setBallShooter(false);
     }
 
     //////////////////////////////////////////
@@ -219,6 +246,10 @@ public class BallSystem implements Runnable {
 
     public void setLoaderState(boolean state){
         setBallLoaderState(state);
+    }
+
+    public void setConveyorDirection(boolean state){
+        this.setBallConveyorState(state);
     }
 
 

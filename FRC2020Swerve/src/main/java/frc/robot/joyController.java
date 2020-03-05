@@ -104,12 +104,12 @@ public class joyController{
     }
 
     public JoyDriveData getButtonState(JoyDriveData curJoyData){
-        curJoyData.aButton = jController.getRawButton(0);
-        curJoyData.bButton = jController.getRawButton(1);
-        curJoyData.xButton = jController.getRawButton(2);
-        curJoyData.yButton = jController.getRawButton(3);
-        curJoyData.bumperLeft = jController.getRawButton(4);
-        curJoyData.bumperRight = jController.getRawButton(5);
+        curJoyData.aButton = jController.getRawButton(1);
+        curJoyData.bButton = jController.getRawButton(2);
+        //curJoyData.xButton = jController.getRawButton(3);
+        //curJoyData.yButton = jController.getRawButton(4);
+        //curJoyData.bumperLeft = jController.getRawButton(5);
+        //curJoyData.bumperRight = jController.getRawButton(6);
 
         return curJoyData;
     }
