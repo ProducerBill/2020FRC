@@ -7,6 +7,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,6 +36,11 @@ public class Robot extends TimedRobot {
   private RobotBase rbase;    //Robot chassis.
   private Runnable bSystem; //Ball shooter system.
   private Runnable nServer;  //Com server
+
+  private VictorSPX lift;
+  private VictorSPX poll;
+
+
 
   /**
    * This function is run when the robot is first started up and should be
@@ -64,7 +72,12 @@ public class Robot extends TimedRobot {
     nServer = new ServerTCP();
     Thread threadNServer = new Thread(nServer);
     //threadNServer.start();
-    
+   
+    lift = new VictorSPX(14);
+    poll = new VictorSPX(13);
+
+    poll.setInverted(false);
+
   }
 
   public void disabledInit() {
@@ -180,9 +193,29 @@ public class Robot extends TimedRobot {
       ((BallSystem) bSystem).setConveyorDirection(!((BallSystem) bSystem).conveyorDir);
     }
 
-    
+    if(curShooterData.yButton == true){
+      lift.set(ControlMode.PercentOutput, 0.5);
+    } else {
+      lift.set(ControlMode.PercentOutput, 0.0);
+    }
+
+    if(curShooterData.xButton == true){
+      poll.set(ControlMode.PercentOutput, 0.5);
+    } else {
+      poll.set(ControlMode.PercentOutput, 0.0);
+    }
 
   }
+
+@Override
+public void testInit() {
+  // TODO Auto-generated method stub
+  super.testInit();
+
+  poll.setInverted(true);
+
+
+}
 
   /**
    * This function is called periodically during test mode.
@@ -190,19 +223,20 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
 
-    ((BallSystem) bSystem).enable(true);
-    ((BallSystem) bSystem).testSystem();
+    //Getting the analolg stick data.
+    JoyDriveData curDriverData = jCDriver.getDriveData(0.5);
+    JoyDriveData curShooterData = jCShooter.getDriveData(0.25);
 
-    /*    
-    JoyDriveData curDriverData = new JoyDriveData();
+    //Getting the controller button states.
+    curDriverData = jCDriver.getButtonState(curDriverData); //Getting the button state.
+    curShooterData = jCShooter.getButtonState(curShooterData);  //Getting the shooter button state.
 
-    curDriverData = new JoyDriveData();
-    curDriverData.driveAngle = 0;
-    curDriverData.driveSpeed = 0.1;
-    curDriverData.leftX = 0.0;
-    curDriverData.leftY = 1.0;
-
-    rbase.driveBase(curDriverData);
-    */
+    
+    if(curShooterData.xButton == true){
+      poll.set(ControlMode.PercentOutput, 0.5);
+    } else {
+      poll.set(ControlMode.PercentOutput, 0.0);
+    }
+    
   }
 }
